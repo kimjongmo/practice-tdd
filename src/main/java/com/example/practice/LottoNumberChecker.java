@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class LottoNumberChecker {
 
@@ -13,21 +11,17 @@ public class LottoNumberChecker {
 
     public int check(int[] numbers) {
 
-
-        int res = 0;
-
         if (!isCount(numbers))
             return -1;
 
-        numberSort(numbers);
-
-        if (!isNumberCheck(numbers))
+        if (!isNonDuplicate(numbers))
             return -2;
 
-        int[] winningNumber = generateWinningNumber();
+        if (!isBetweenScope(numbers))
+            return -2;
 
-//        return matching(numbers, winningNumber);
-        return matching(numbers,new int[]{1,2,3,4,5,7,6});
+        return matching(numbers, LottoMachine.generate());
+//        return matching(numbers,new int[]{1,2,3,4,5,7,6});
     }
 
 
@@ -38,41 +32,20 @@ public class LottoNumberChecker {
         return true;
     }
 
-    public boolean isNumberCheck(int[] numbers) {
+    public boolean isNonDuplicate(int[] numbers) {
+        if ((int) Arrays.stream(numbers).distinct().count() != numbers.length)
+            return false;
+        return true;
+    }
 
+    public boolean isBetweenScope(int[] numbers) {
+        //숫자 범위 체크
         for (int i = 0; i <= 5; i++) {
             if (numbers[i] < 1 || numbers[i] > 45) {
                 return false;
             }
-            if (i != 5 && numbers[i] == numbers[i + 1]) {
-                return false;
-            }
         }
         return true;
-    }
-
-    public void numberSort(int[] numbers) {
-        Arrays.sort(numbers);
-    }
-
-    public int[] generateWinningNumber() {
-
-        Set<Integer> generate = new HashSet<>();
-        int[] winningNumber = new int[7];
-        int count = 7;
-
-        while (count > 0) {
-            int number = (int) ((Math.random() * 45) + 1);
-            if (!generate.contains(number)) {
-                generate.add(number);
-                winningNumber[count - 1] = number;
-                count--;
-            }
-        }
-
-        log.info("당첨 범호 : {}", Arrays.toString(winningNumber));
-
-        return winningNumber;
     }
 
     public int matching(int[] numbers, int[] winningNumber) {
