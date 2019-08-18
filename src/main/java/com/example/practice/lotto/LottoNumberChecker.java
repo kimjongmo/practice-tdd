@@ -1,4 +1,4 @@
-package com.example.practice;
+package com.example.practice.lotto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

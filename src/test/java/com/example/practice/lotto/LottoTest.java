@@ -1,7 +1,8 @@
-package com.example.practice;
+package com.example.practice.lotto;
 
 import static org.junit.Assert.*;
 
+import com.example.practice.lotto.LottoNumberChecker;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class LottoTest {
 
     @Test
     public void test_성공_케이스() {
-        int result = lottoNumberChecker.check(new int[]{1, 2, 3, 4, 5, 6});
+        int result = lottoNumberChecker.check(new int[]{17, 22, 3, 44, 35, 10});
         assertTrue(0 <= result && result < 7);
     }
 

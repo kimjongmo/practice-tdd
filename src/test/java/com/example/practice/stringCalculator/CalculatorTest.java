@@ -1,7 +1,8 @@
-package com.example.practice;
+package com.example.practice.stringCalculator;
 
 import static org.junit.Assert.assertEquals;
 
+import com.example.practice.calculator.StringCalculator;
 import org.junit.Test;
 public class CalculatorTest{
 

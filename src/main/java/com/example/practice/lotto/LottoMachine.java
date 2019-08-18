@@ -1,10 +1,15 @@
-package com.example.practice;
+package com.example.practice.lotto;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LottoMachine {
-
+    private static Logger log = LoggerFactory.getLogger(LottoMachine.class);
     private static final int LOTTO_BALL_COUNT = 7;
     private static List<Integer> machine = null;
 
@@ -27,11 +32,13 @@ public class LottoMachine {
 
         int i = 0;
         while (i < LOTTO_BALL_COUNT) {
-            int index = (int) Math.random() * machine.size() + 1;
-            winNumber[i++] = machine.remove(index);
+            int index = (int) (Math.random() * machine.size()) + 1;
+            winNumber[i++] = machine.remove(index-1);
         }
 
         machineOff();
+
+        log.info("Generated : {}", Arrays.toString(winNumber));
 
         return winNumber;
     }

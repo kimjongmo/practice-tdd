@@ -1,4 +1,4 @@
-package com.example.practice;
+package com.example.practice.calculator;
 
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
