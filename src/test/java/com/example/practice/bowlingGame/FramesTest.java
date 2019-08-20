@@ -1,5 +1,6 @@
 package com.example.practice.bowlingGame;
 
+import com.example.practice.bowlingGame.exception.CalculatingFrameException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,13 +39,13 @@ public class FramesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void 스코어_체크_함수_두번째_투기_10초과_실패() {
-        frames.recordFrame(new Roll(8), 1, FrameStatus.NORMAL);
-        frames.check(3);
+        frames.record(8);
+        frames.record(3);
     }
 
     @Test
     public void 프레임_스코어_판정_함수_스페어() {
-        frames.recordFrame(new Roll(8), 1, FrameStatus.NORMAL);
+        frames.record(8);
         assertEquals(FrameStatus.SPARE, frames.judgement(2));
     }
 
@@ -60,7 +61,7 @@ public class FramesTest {
         int secondRoll = 3;
         frames.record(firstRoll);
         frames.record(secondRoll);
-        assertTrue(firstRoll + secondRoll == frames.score(1));
+        assertEquals((firstRoll + secondRoll), frames.getScore(1));
     }
 
     @Test
@@ -69,7 +70,32 @@ public class FramesTest {
         frames.record(4);
         frames.record(3);
         frames.record(6);
-        assertTrue(19 == frames.score(1));
+        assertTrue(13 == frames.getScore(1));
+    }
+
+
+    @Test
+    public void 스트라이크_이후_노멀() {
+        frames.record(10);
+        frames.record(1);
+        frames.record(1);
+        assertEquals(12, frames.getScore(1));
+    }
+
+    @Test(expected = CalculatingFrameException.class)
+    public void 스트라이크_이후_스트라이크() {
+        frames.record(10);
+        frames.record(10);
+        assertEquals(0, frames.getScore(1));
+    }
+
+    @Test
+    public void 스트라이크_이후_스트라이크_이후_노멀() {
+        frames.record(10);
+        frames.record(10);
+        frames.record(7);
+        frames.record(1);
+        assertEquals(27, frames.getScore(1));
     }
 
 

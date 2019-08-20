@@ -20,20 +20,18 @@ public class Frame {
         return false;
     }
 
-    public void addRoll(Roll roll, int index,FrameStatus status) {
-        rolls[index-1] = roll;
+    public void addRoll(Roll roll, int index, FrameStatus status) {
+        rolls[index - 1] = roll;
         this.status = status;
     }
 
     public int getScore() {
-
         int score = 0;
 
         for (Roll roll : rolls) {
             if (roll != null)
                 score += roll.getKnockDown();
         }
-
         return score;
     }
 
@@ -41,8 +39,14 @@ public class Frame {
         return status;
     }
 
-    public void setStatus(FrameStatus frameStatus) {
-        this.status = frameStatus;
+    public int[] getScoreArray() {
+        int[] arr = new int[rolls.length];
+        for (int i = 0; i < rolls.length; i++) {
+            if (rolls[i] != null)
+                arr[i] = rolls[i].getKnockDown();
+            else
+                arr[i] = 0;
+        }
+        return arr;
     }
-
 }
