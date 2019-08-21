@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class FramesRecordTest {
@@ -84,13 +85,23 @@ public class FramesRecordTest {
     }
 
     @Test
-    public void 열번째_프레임일때() {
+    public void 열번째_프레임_노멀() {
         frames.nowFrame = 10;
-        frames.nowRoll = 1;
+        frames.record(5);
+        assertTrue(frames.record(4));
+    }
 
+    @Test
+    public void 열번째_프레임_스페어(){
+        frames.nowFrame = 10;
+        frames.record(5);
+        assertFalse(frames.record(5));
+    }
+    @Test
+    public void 열번째_프레임_처음_스트라이크_이후_노멀(){
+        frames.nowFrame = 10;
         frames.record(10);
-        frames.record(10);
-        assertTrue(frames.record(10));
+        assertFalse(frames.record(5));
     }
 
 

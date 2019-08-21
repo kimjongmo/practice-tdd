@@ -45,6 +45,7 @@ public class Frames {
     public boolean next10(FrameStatus status) {
         FrameStatus frameStatus = frames[nowFrame].getStatus();
         if (nowRoll == 2 && frameStatus != FrameStatus.STRIKE && frameStatus != FrameStatus.SPARE) {
+            nowFrame++;
             return true;
         }
         nowRoll++;
@@ -73,12 +74,29 @@ public class Frames {
     }
 
     public FrameStatus judgement(int knockDown) {
-        if (nowFrame!=10 && nowRoll == 1 && knockDown == 10) return FrameStatus.STRIKE;
-        if (nowFrame!=10 && nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
-        if (nowFrame==10 && nowRoll ==1 && knockDown == 10) return FrameStatus.STRIKE;
-        if (nowFrame==10 && nowRoll ==2 &&  frames[nowFrame].getStatus()!=FrameStatus.STRIKE) return FrameStatus.STRIKE;
 
-        return FrameStatus.NORMAL;
+        if (nowFrame != 10) {
+            if (nowRoll == 1 && knockDown == 10) return FrameStatus.STRIKE;
+            if (nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
+            return FrameStatus.NORMAL;
+        } else {
+            if (knockDown == 10) return FrameStatus.STRIKE;
+            else {
+                if (nowRoll == 1) return FrameStatus.NORMAL;
+                else if (nowRoll == 2) {
+                    Frame frame = frames[nowFrame];
+                    if (frame.getStatus() == FrameStatus.STRIKE) {
+                        return FrameStatus.STRIKE;
+                    } else if (frame.getStatus() == FrameStatus.NORMAL && frame.getScore() + knockDown == 10) {
+                        return FrameStatus.SPARE;
+                    } else {
+                        return FrameStatus.NORMAL;
+                    }
+                } else {
+                    return FrameStatus.NORMAL;
+                }
+            }
+        }
     }
 
     public void recordFrame(Roll roll, FrameStatus status) {
