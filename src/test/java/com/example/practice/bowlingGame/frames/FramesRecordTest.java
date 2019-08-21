@@ -1,40 +1,21 @@
-package com.example.practice.bowlingGame;
+package com.example.practice.bowlingGame.frames;
 
+import com.example.practice.bowlingGame.FrameStatus;
+import com.example.practice.bowlingGame.Frames;
 import com.example.practice.bowlingGame.exception.CalculatingFrameException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class FramesTest {
+public class FramesRecordTest {
     private Frames frames;
 
     @Before
     public void setUp() {
         frames = new Frames();
-    }
-
-    @Test
-    public void 스코어_체크_함수_첫번째_투기_10초과_실패() {
-        assertFalse(frames.check(11));
-    }
-
-    @Test
-    public void 스코어_체크_함수_첫번째_투기_0미만_실패() {
-        assertFalse(frames.check(-1));
-    }
-
-    @Test
-    public void 스코어_체크_함수_첫번째_투기_성공() {
-        assertTrue(frames.check(8));
-    }
-
-    @Test
-    public void 프레임_스코어_판정_함수_스트라이크() {
-        int knockDown = 10;
-        assertEquals(FrameStatus.STRIKE, frames.judgement(knockDown));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -46,13 +27,7 @@ public class FramesTest {
     @Test
     public void 프레임_스코어_판정_함수_스페어() {
         frames.record(8);
-        assertEquals(FrameStatus.SPARE, frames.judgement(2));
-    }
-
-    @Test
-    public void 프레임_스코어_판정_함수_노말() {
-        frames.recordFrame(new Roll(8), 1, FrameStatus.NORMAL);
-        assertEquals(FrameStatus.NORMAL, frames.judgement(1));
+        Assert.assertEquals(FrameStatus.SPARE, frames.judgement(2));
     }
 
     @Test
@@ -96,6 +71,26 @@ public class FramesTest {
         frames.record(7);
         frames.record(1);
         assertEquals(27, frames.getScore(1));
+    }
+
+    @Test
+    public void 스트라이크_터키() {
+        frames.record(10);
+        frames.record(10);
+        frames.record(10);
+        frames.record(5);
+        frames.record(3);
+        assertEquals(30, frames.getScore(1));
+    }
+
+    @Test
+    public void 열번째_프레임일때() {
+        frames.nowFrame = 10;
+        frames.nowRoll = 1;
+
+        frames.record(10);
+        frames.record(10);
+        assertTrue(frames.record(10));
     }
 
 

@@ -3,25 +3,17 @@ package com.example.practice.bowlingGame;
 public class Frame {
 
     private FrameStatus status;
-    private Roll[] rolls;
+    private int nowRoll = 0;
+    public Roll[] rolls;
 
-
-    public Frame(int rollCount) {
-        if (!isScope(rollCount))
-            throw new IllegalArgumentException();
+    public Frame() {
         status = FrameStatus.WAIT;
-        rolls = new Roll[rollCount];
+        rolls = new Roll[Role.FRAME_NORMAL_ROLL_COUNT];
     }
 
-    private boolean isScope(int rollCount) {
-        if (rollCount == Role.FRAME_NORMAL_ROLL_COUNT
-                || rollCount == Role.FRAME_10TH_ROLL_COUNT)
-            return true;
-        return false;
-    }
 
-    public void addRoll(Roll roll, int index, FrameStatus status) {
-        rolls[index - 1] = roll;
+    public void addRoll(Roll roll, FrameStatus status) {
+        rolls[nowRoll++] = roll;
         this.status = status;
     }
 
@@ -48,5 +40,13 @@ public class Frame {
                 arr[i] = 0;
         }
         return arr;
+    }
+
+    public boolean check(int knockDown) {
+        int score = getScore() + knockDown;
+
+        if (score > Role.PIN_MAX_COUNT || score < 0)
+            return false;
+        return true;
     }
 }

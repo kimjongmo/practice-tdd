@@ -4,23 +4,16 @@ import com.example.practice.bowlingGame.exception.CalculatingFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
 public class Frames {
 
     private Logger log = LoggerFactory.getLogger(Frames.class);
-    private Frame[] frames = new Frame[Role.FRAME_COUNT];
-    private int nowRoll = 1;    //현재 투구
-    private int nowFrame = 1;   //현재 프레임
+    private Frame[] frames = new Frame[Role.FRAME_COUNT + 1];
+    public int nowRoll = 1;    //현재 투구
+    public int nowFrame = 1;   //현재 프레임
     private Integer[] scoreBoard = new Integer[11];
-
 
     public Frames() {
         createFrame();
-    }
-
-    public Frame getFrame(int index) {
-        return frames[index - 1];
     }
 
     public int getScore(int frameNumber) {
@@ -29,63 +22,70 @@ public class Frames {
         throw new CalculatingFrameException();
     }
 
-    private void createFrame() {
-        for (int i = 0; i < Role.FRAME_COUNT - 1; i++) {
-            frames[i] = new Frame(2);
+    public void createFrame() {
+        for (int i = 1; i <= Role.FRAME_COUNT - 1; i++) {
+            frames[i] = new Frame();
         }
-        frames[Role.FRAME_COUNT - 1] = new Frame(3);
+        frames[Role.FRAME_COUNT] = new TenFrame();
     }
 
-    public void record(int knockDown) {
-
+    public boolean record(int knockDown) {
         log.info("현재 투구:{},현재 프레임:{},쓰러뜨린 핀 수:{}", nowRoll, nowFrame, knockDown);
-
         if (!check(knockDown))
             throw new IllegalArgumentException();
-
         FrameStatus status = judgement(knockDown);
         log.info("status:{}", status);
-
-        recordFrame(new Roll(knockDown), nowRoll, status);
-
-        next(status);
-
+        recordFrame(new Roll(knockDown), status);
+        if (nowFrame != 10)
+            return next(status);
+        else
+            return next10(status);
     }
 
-    public void next(FrameStatus status) {
+    public boolean next10(FrameStatus status) {
+        FrameStatus frameStatus = frames[nowFrame].getStatus();
+        if (nowRoll == 2 && frameStatus != FrameStatus.STRIKE && frameStatus != FrameStatus.SPARE) {
+            return true;
+        }
+        nowRoll++;
+        return false;
+    }
+
+    public boolean next(FrameStatus status) {
         if (nowRoll == 1 && status == FrameStatus.STRIKE) {
             nowFrame++;
             nowRoll = 1;
             cal(1);
+            return true;
         } else if (nowRoll == 2) {
             nowFrame++;
             nowRoll = 1;
             cal(1);
+            return true;
         } else {
             nowRoll++;
+            return false;
         }
     }
 
     public boolean check(int knockDown) {
-        int score = getFrame(nowFrame).getScore() + knockDown;
-
-        if (score > Role.PIN_MAX_COUNT || score < 0)
-            return false;
-        return true;
+        return frames[nowFrame].check(knockDown);
     }
 
     public FrameStatus judgement(int knockDown) {
-        if (nowRoll == 1 && knockDown == 10) return FrameStatus.STRIKE;
-        if (nowRoll == 2 && getFrame(nowFrame).getScore() + knockDown == 10) return FrameStatus.SPARE;
+        if (nowFrame!=10 && nowRoll == 1 && knockDown == 10) return FrameStatus.STRIKE;
+        if (nowFrame!=10 && nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
+        if (nowFrame==10 && nowRoll ==1 && knockDown == 10) return FrameStatus.STRIKE;
+        if (nowFrame==10 && nowRoll ==2 &&  frames[nowFrame].getStatus()!=FrameStatus.STRIKE) return FrameStatus.STRIKE;
+
         return FrameStatus.NORMAL;
     }
 
-    public void recordFrame(Roll roll, int i, FrameStatus status) {
-        getFrame(nowFrame).addRoll(roll, i, status);
+    public void recordFrame(Roll roll, FrameStatus status) {
+        frames[nowFrame].addRoll(roll, status);
     }
 
     public void cal(int frameNumber) {
-
         int next = frameNumber + 1;
         if (nowFrame <= frameNumber)
             return;
@@ -95,8 +95,8 @@ public class Frames {
             return;
         }
 
-        Frame frame = getFrame(frameNumber);
-        Frame nextFrame = getFrame(next);
+        Frame frame = frames[frameNumber];
+        Frame nextFrame = frames[next];
         switch (frame.getStatus()) {
             case STRIKE:
                 if (next < nowFrame && nextFrame.getStatus() != FrameStatus.STRIKE) {
@@ -105,7 +105,7 @@ public class Frames {
                     return;
                 } else if (next < nowFrame && nextFrame.getStatus() == FrameStatus.STRIKE) {
                     if (next + 1 < nowFrame) {
-                        scoreBoard[frameNumber] = 10 + 10 + getFrame(next + 1).getScoreArray()[0];
+                        scoreBoard[frameNumber] = 10 + 10 + frames[next + 1].getScoreArray()[0];
                         cal(frameNumber + 1);
                         return;
                     } else
@@ -124,39 +124,5 @@ public class Frames {
                 }
                 return;
         }
-    }
-
-    public void show() {
-        System.out.println("-------------------------------------------------------");
-        for (int i = 1; i <= 10; i++) {
-            System.out.print("[ " + i + " ]");
-        }
-        System.out.println();
-        for (Frame frame : frames) {
-            switch (frame.getStatus()) {
-                case STRIKE:
-                    System.out.print("[ x ]");
-                    break;
-                case NORMAL:
-                    System.out.print(Arrays.toString(frame.getScoreArray()).replaceAll(" ", ""));
-                    break;
-                case WAIT:
-                    System.out.print("[ - ]");
-                    break;
-                case SPARE:
-                    int[] arr = frame.getScoreArray();
-                    System.out.print("[" + arr[0] + ",/]");
-                    break;
-            }
-        }
-        System.out.println();
-        int total = 0;
-        for (Integer score : scoreBoard) {
-            if (score != null) {
-                total += score;
-                System.out.print("[" + total + "]");
-            }
-        }
-        System.out.println("-------------------------------------------------------");
     }
 }

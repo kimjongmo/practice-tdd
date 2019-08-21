@@ -6,5 +6,6 @@ public class Role {
     public static final int FRAME_COUNT = 10;
     public static final int PIN_MAX_COUNT = 10;
     public static final int PIN_MIN_COUNT = 0;
+    public static final int FRMAE_10TH_MAX_SCORE = 30;
 
 }
