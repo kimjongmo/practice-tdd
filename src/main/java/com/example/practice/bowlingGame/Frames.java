@@ -25,26 +25,26 @@ public class Frames {
     public void createFrame() {
         for (int i = 1; i <= Role.FRAME_COUNT - 1; i++) {
             frames[i] = new Frame();
+            frames[i - 1].setNext(frames[i]);
         }
         frames[Role.FRAME_COUNT] = new TenFrame();
     }
 
     public boolean record(int knockDown) {
         log.info("현재 투구:{},현재 프레임:{},쓰러뜨린 핀 수:{}", nowRoll, nowFrame, knockDown);
-        if (!check(knockDown))
-            throw new IllegalArgumentException();
+
+        if (!check(knockDown)) throw new IllegalArgumentException();
+
         FrameStatus status = judgement(knockDown);
         log.info("status:{}", status);
+
         recordFrame(new Roll(knockDown), status);
-        if (nowFrame != 10)
-            return next(status);
-        else
-            return next10(status);
+
+        return next(status);
     }
 
-    public boolean next10(FrameStatus status) {
-        FrameStatus frameStatus = frames[nowFrame].getStatus();
-        if (nowRoll == 2 && frameStatus != FrameStatus.STRIKE && frameStatus != FrameStatus.SPARE) {
+    public boolean next10() {
+        if (nowRoll == 2 && frames[nowFrame].getScore() < 10) {
             nowFrame++;
             return true;
         }
@@ -53,20 +53,16 @@ public class Frames {
     }
 
     public boolean next(FrameStatus status) {
-        if (nowRoll == 1 && status == FrameStatus.STRIKE) {
+        if (nowFrame == 10)
+            return next10();
+        if (status == FrameStatus.STRIKE || nowRoll == 2) {
             nowFrame++;
             nowRoll = 1;
             cal(1);
             return true;
-        } else if (nowRoll == 2) {
-            nowFrame++;
-            nowRoll = 1;
-            cal(1);
-            return true;
-        } else {
-            nowRoll++;
-            return false;
         }
+        nowRoll++;
+        return false;
     }
 
     public boolean check(int knockDown) {
@@ -74,29 +70,19 @@ public class Frames {
     }
 
     public FrameStatus judgement(int knockDown) {
+        if (nowFrame == 10)
+            return judgement10(knockDown);
+        if (nowRoll == 1 && knockDown == 10) return FrameStatus.STRIKE;
+        else if (nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
+        return FrameStatus.NORMAL;
+    }
 
-        if (nowFrame != 10) {
-            if (nowRoll == 1 && knockDown == 10) return FrameStatus.STRIKE;
-            if (nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
-            return FrameStatus.NORMAL;
-        } else {
-            if (knockDown == 10) return FrameStatus.STRIKE;
-            else {
-                if (nowRoll == 1) return FrameStatus.NORMAL;
-                else if (nowRoll == 2) {
-                    Frame frame = frames[nowFrame];
-                    if (frame.getStatus() == FrameStatus.STRIKE) {
-                        return FrameStatus.STRIKE;
-                    } else if (frame.getStatus() == FrameStatus.NORMAL && frame.getScore() + knockDown == 10) {
-                        return FrameStatus.SPARE;
-                    } else {
-                        return FrameStatus.NORMAL;
-                    }
-                } else {
-                    return FrameStatus.NORMAL;
-                }
-            }
-        }
+    public FrameStatus judgement10(int knockDown) {
+        if (knockDown == 10) return FrameStatus.STRIKE;
+        else if (knockDown == 0) return FrameStatus.NORMAL;
+        else if (nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
+
+        return FrameStatus.NORMAL;
     }
 
     public void recordFrame(Roll roll, FrameStatus status) {
@@ -104,7 +90,9 @@ public class Frames {
     }
 
     public void cal(int frameNumber) {
+
         int next = frameNumber + 1;
+
         if (nowFrame <= frameNumber)
             return;
 
@@ -114,33 +102,35 @@ public class Frames {
         }
 
         Frame frame = frames[frameNumber];
-        Frame nextFrame = frames[next];
         switch (frame.getStatus()) {
-            case STRIKE:
-                if (next < nowFrame && nextFrame.getStatus() != FrameStatus.STRIKE) {
-                    scoreBoard[frameNumber] = 10 + nextFrame.getScore();
-                    cal(next);
-                    return;
-                } else if (next < nowFrame && nextFrame.getStatus() == FrameStatus.STRIKE) {
-                    if (next + 1 < nowFrame) {
-                        scoreBoard[frameNumber] = 10 + 10 + frames[next + 1].getScoreArray()[0];
-                        cal(frameNumber + 1);
-                        return;
-                    } else
-                        return;
-                }
-                return;
-            case NORMAL:
-                scoreBoard[frameNumber] = frame.getScore();
-                cal(next);
-                return;
-            case SPARE:
-                if (next < nowFrame) {
-                    scoreBoard[frameNumber] = 10 + nextFrame.getScoreArray()[0];
-                    cal(next);
-                    return;
-                }
-                return;
+            case STRIKE: strike(frameNumber, frame); return;
+            case NORMAL: normal(frameNumber, frame);return;
+            case SPARE: spare(frameNumber, frame);return;
         }
     }
+
+    public void strike(int number, Frame frame) {
+
+        Frame next = frame.getNext();
+
+        if (next.getStatus() != FrameStatus.STRIKE) {
+            scoreBoard[number] = frame.getScore() + next.getScore();
+            return;
+        }
+        Frame next2 = next.getNext();
+        if (next2.getStatus() != FrameStatus.STRIKE) {
+            scoreBoard[number] = frame.getScore() + next.getScore() + next2.getScore();
+            return;
+        }
+        scoreBoard[number] = Role.FRMAE_10TH_MAX_SCORE;
+    }
+
+    public void normal(int number, Frame frame) {
+        scoreBoard[number] = frame.getScore();
+    }
+
+    public void spare(int number, Frame frame) {
+        scoreBoard[number] = frame.getScore() + frame.getNext().getScoreArray()[0];
+    }
+
 }

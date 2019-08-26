@@ -5,12 +5,12 @@ public class Frame {
     private FrameStatus status;
     private int nowRoll = 0;
     public Roll[] rolls;
+    private Frame next = null;
 
     public Frame() {
         status = FrameStatus.WAIT;
         rolls = new Roll[Role.FRAME_NORMAL_ROLL_COUNT];
     }
-
 
     public void addRoll(Roll roll, FrameStatus status) {
         rolls[nowRoll++] = roll;
@@ -48,5 +48,13 @@ public class Frame {
         if (score > Role.PIN_MAX_COUNT || score < 0)
             return false;
         return true;
+    }
+
+    public Frame getNext() {
+        return next;
+    }
+
+    public void setNext(Frame next) {
+        this.next = next;
     }
 }
