@@ -1,6 +1,8 @@
 package com.example.practice.bowlingGame;
 
 import com.example.practice.bowlingGame.exception.CalculatingFrameException;
+import com.example.practice.bowlingGame.machine.Calculator;
+import com.example.practice.bowlingGame.machine.Judgement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,9 @@ public class Frames {
 
         if (!check(knockDown)) throw new IllegalArgumentException();
 
-        FrameStatus status = judgement(knockDown);
+        Frame frame = frames[nowFrame];
+        FrameStatus status = Judgement.judgement(nowFrame, nowRoll, knockDown, frame);
+
         log.info("status:{}", status);
 
         recordFrame(new Roll(knockDown), status);
@@ -69,68 +73,22 @@ public class Frames {
         return frames[nowFrame].check(knockDown);
     }
 
-    public FrameStatus judgement(int knockDown) {
-        if (nowFrame == 10)
-            return judgement10(knockDown);
-        if (nowRoll == 1 && knockDown == 10) return FrameStatus.STRIKE;
-        else if (nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
-        return FrameStatus.NORMAL;
-    }
-
-    public FrameStatus judgement10(int knockDown) {
-        if (knockDown == 10) return FrameStatus.STRIKE;
-        else if (knockDown == 0) return FrameStatus.NORMAL;
-        else if (nowRoll == 2 && frames[nowFrame].getScore() + knockDown == 10) return FrameStatus.SPARE;
-
-        return FrameStatus.NORMAL;
-    }
-
     public void recordFrame(Roll roll, FrameStatus status) {
         frames[nowFrame].addRoll(roll, status);
     }
 
     public void cal(int frameNumber) {
 
-        int next = frameNumber + 1;
-
         if (nowFrame <= frameNumber)
             return;
 
         if (scoreBoard[frameNumber] != null) {
-            cal(next);
+            cal(frameNumber + 1);
             return;
         }
 
         Frame frame = frames[frameNumber];
-        switch (frame.getStatus()) {
-            case STRIKE: strike(frameNumber, frame); return;
-            case NORMAL: normal(frameNumber, frame);return;
-            case SPARE: spare(frameNumber, frame);return;
-        }
-    }
-
-    public void strike(int number, Frame frame) {
-
-        Frame next = frame.getNext();
-
-        if (next.getStatus() != FrameStatus.STRIKE) {
-            scoreBoard[number] = frame.getScore() + next.getScore();
-            return;
-        }
-        Frame next2 = next.getNext();
-        if (next2.getStatus() != FrameStatus.STRIKE) {
-            scoreBoard[number] = frame.getScore() + next.getScore() + next2.getScore();
-            return;
-        }
-        scoreBoard[number] = Role.FRMAE_10TH_MAX_SCORE;
-    }
-
-    public void normal(int number, Frame frame) {
-        scoreBoard[number] = frame.getScore();
-    }
-
-    public void spare(int number, Frame frame) {
-        scoreBoard[number] = frame.getScore() + frame.getNext().getScoreArray()[0];
+        scoreBoard[frameNumber] = Calculator.cal(frameNumber, frame);
     }
 
 }
