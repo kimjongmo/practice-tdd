@@ -1,10 +1,10 @@
 package com.example.practice.lotto;
 
-import static org.junit.Assert.*;
-
-import com.example.practice.lotto.LottoNumberChecker;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class LottoTest {

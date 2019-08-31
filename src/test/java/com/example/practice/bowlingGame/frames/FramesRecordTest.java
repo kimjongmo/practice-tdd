@@ -26,12 +26,6 @@ public class FramesRecordTest {
     }
 
     @Test
-    public void 프레임_스코어_판정_함수_스페어() {
-        frames.record(8);
-        Assert.assertEquals(FrameStatus.SPARE, frames.judgement(2));
-    }
-
-    @Test
     public void 기록한_스코어와_프레임에_기록된_스코어와_동일한지() {
         int firstRoll = 4;
         int secondRoll = 3;

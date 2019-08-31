@@ -34,16 +34,5 @@ public class MethodTest {
         assertTrue(frames.check(8));
     }
 
-    @Test
-    public void 프레임_스코어_판정_함수_노말() {
-        frames.recordFrame(new Roll(8),  FrameStatus.NORMAL);
-        assertEquals(FrameStatus.NORMAL, frames.judgement(1));
-    }
-
-    @Test
-    public void 프레임_스코어_판정_함수_스트라이크() {
-        int knockDown = 10;
-        assertEquals(FrameStatus.STRIKE, frames.judgement(knockDown));
-    }
 
 }
