@@ -1,25 +1,27 @@
 package com.example.practice.pay;
 
+import lombok.Getter;
+
+@Getter
 public class Account {
 
-    private long balance;
+    private Long balance;
 
     public Account() {
-
+        balance = 0L;
     }
 
     public void deposit(long amount) {
         balance += amount;
     }
 
-    public void withdraw(long amount) {
-        if (amount > balance) {
-            throw new IllegalArgumentException("잔액이 부족합니다.");
+    public boolean sendTo(Account receiver, long amount) {
+        if (balance < amount)
+            return false;
+        synchronized (balance) {
+            balance -= amount;
+            receiver.deposit(amount);
+            return true;
         }
-        balance -= amount;
-    }
-
-    public long getBalance() {
-        return balance;
     }
 }
