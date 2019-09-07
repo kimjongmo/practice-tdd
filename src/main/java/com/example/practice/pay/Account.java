@@ -1,8 +1,10 @@
 package com.example.practice.pay;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class Account {
 
     private Long balance;
@@ -24,4 +26,6 @@ public class Account {
             return true;
         }
     }
+
+
 }
