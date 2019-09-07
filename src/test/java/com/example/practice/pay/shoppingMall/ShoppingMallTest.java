@@ -4,11 +4,13 @@ import com.example.practice.pay.*;
 import com.example.practice.pay.mock.MockCard;
 import com.example.practice.pay.mock.MockPaymentGateway;
 import com.example.practice.pay.mock.MockShoppingMall;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 public class ShoppingMallTest {
 
     private Card card;
@@ -33,6 +35,7 @@ public class ShoppingMallTest {
 
         //결과
         Product registProduct = shoppingMall.getProducts().get(productId);
+        log.info("등록 상품 정보 : {}", registProduct);
         assertThat(registProduct.getName()).isEqualTo(product.getName());
         assertThat(registProduct.getPrice()).isEqualTo(product.getPrice());
     }
@@ -44,7 +47,7 @@ public class ShoppingMallTest {
 
         //행위
         PayRequest request = shoppingMall.makePayRequest(productId, card);
-
+        log.info("결제 요청 정보 : {}",request);
         //결과
         Product product = shoppingMall.getProducts().get(productId);
         assertThat(request.getPayMethod()).isEqualTo("CARD");
